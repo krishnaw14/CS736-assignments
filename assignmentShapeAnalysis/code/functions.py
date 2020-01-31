@@ -63,6 +63,45 @@ def compute_mean(pointsets):
 	return z_mean, z
 
 
+def compute_covariance_matrix(Z, mean):
+	# mean - 1xnxd
+	# z - Nxnxd
+
+	N = Z.shape[0]
+	z_vec_dim = Z.shape[1]*Z.shape[2]
+	mean = mean.reshape((1,z_vec_dim))
+	mean = mean.T
+	Z = Z.reshape((N,z_vec_dim))
+	Z = Z.T
+
+	# mean - ndx1
+	# Z - ndxN
+
+	# cov_matrix = np.matmul(Z-mean, (Z-mean).T)
+	cov_matrix = np.cov(Z)
+
+	return cov_matrix
+
+def get_closest_pointset(z, mean):
+
+	z = compute_preshape_space(z)
+	mean = compute_preshape_space(mean)
+
+	min_dist = 1000
+	min_dist_index = -1
+
+	for i in range(z.shape[0]):
+
+		R = compute_optimal_rotation(z[i], mean[0])
+		z_i_align = np.matmul(R, z[i])
+		dist = np.linalg.norm(mean-z_i_align)
+
+		if dist < min_dist:
+			min_dist = dist
+			min_dist_index = i
+
+	return z[min_dist_index], min_dist_index
+
 
 
 
