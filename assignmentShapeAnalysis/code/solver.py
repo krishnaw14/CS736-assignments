@@ -12,15 +12,17 @@ def solve(data, save_plot_dir = '../results/hand', data_dir = None):
 
 	os.makedirs(save_plot_dir, exist_ok=True)
 	N = data.shape[0]
+	colors = np.random.rand(N,3)
 	
 	# -------------------------- Part A --------------------------- #
 	for i in range(N):
-		plt.plot(data[i,:,0], data[i,:,1], 'o')
+		plt.plot(data[i,:,0], data[i,:,1], 'o', color=colors[i])
 	plt.title('Plot of all initital pointsets')
 	plt.savefig(os.path.join(save_plot_dir, 'initial-all-data-scatter.png'))
 
 	for i in range(N):
-		plt.plot(np.insert(data[i,:,0], -1, data[i,0,0]), np.insert(data[i,:,1], -1, data[i,0,1]))
+		plt.plot(data[i,:,0], data[i,:,1], color=colors[i])
+		plt.plot([data[i,0,0], data[i,-1,0]], [data[i,0,1], data[i,-1,1]], color=colors[i])
 	plt.savefig(os.path.join(save_plot_dir, 'initial-all-data-polyline.png'))
 	plt.clf()
 
@@ -30,7 +32,6 @@ def solve(data, save_plot_dir = '../results/hand', data_dir = None):
 	mean, z_aligned = compute_mean(data)
 	for i in range(40):
 		plt.plot(z_aligned[i,:,0], z_aligned[i,:,1], 'o', alpha=0.4)
-	# import pdb; pdb.set_trace()
 	plt.plot(mean[0,:,0], mean[0,:,1], 'ko-')
 	plt.plot([mean[0,-1,0], mean[0,0,0]], [mean[0,-1,1], mean[0,0,1]], 'ko-')
 
@@ -43,6 +44,11 @@ def solve(data, save_plot_dir = '../results/hand', data_dir = None):
 
 	cov_matrix = compute_covariance_matrix(z_aligned, mean) # ndxnd matrix
 	eig_values, eig_vecs = np.linalg.eig(cov_matrix)
+
+	idx = eig_values.argsort()[::-1]
+	eig_values = eig_values[idx]
+	eig_vecs = eig_vecs[:,idx]
+
 	plt.plot(np.real(eig_values[::-1]))
 	plt.title('Eigenvalues (in y axis) plot (sorted in ascending order)')
 	plt.savefig(os.path.join(save_plot_dir, 'eigen-values.png'))
@@ -79,9 +85,10 @@ def solve(data, save_plot_dir = '../results/hand', data_dir = None):
 	for i in range(40):
 		plt.plot(z_aligned[i,:,0], z_aligned[i,:,1], 'o', alpha=0.15)
 	plt.plot(mean[0,:,0], mean[0,:,1], 'ko-', label='Mean')
+	plt.plot([mean[0,-1,0], mean[0,0,0]], [mean[0,-1,1], mean[0,0,1]], 'ko-')
 
 	plt.plot(var_2_plus[0,:,0], var_2_plus[0,:,1], 'ro-', label='Mean + 3 S.D')
-	plt.plot([var_2_plus[0,-1,0], var_2_plus[0,0,0]], [var_2_plus[0,-1,1], var_2_plus[0,0,1]])
+	plt.plot([var_2_plus[0,-1,0], var_2_plus[0,0,0]], [var_2_plus[0,-1,1], var_2_plus[0,0,1]], 'ro-')
 
 	plt.plot(var_2_minus[0,:,0], var_2_minus[0,:,1], 'bo-', label='Mean - 3 S.D')
 	plt.plot([var_2_minus[0,-1,0], var_2_minus[0,0,0]], [var_2_minus[0,-1,1], var_2_minus[0,0,1]], 'bo-')
@@ -96,6 +103,7 @@ def solve(data, save_plot_dir = '../results/hand', data_dir = None):
 	for i in range(40):
 		plt.plot(z_aligned[i,:,0], z_aligned[i,:,1], 'o', alpha=0.15)
 	plt.plot(mean[0,:,0], mean[0,:,1], 'ko-', label='Mean')
+	plt.plot([mean[0,-1,0], mean[0,0,0]], [mean[0,-1,1], mean[0,0,1]], 'ko-')
 
 	plt.plot(var_3_plus[0,:,0], var_3_plus[0,:,1], 'ro-', label='Mean + 3 S.D')
 	plt.plot([var_3_plus[0,-1,0], var_3_plus[0,0,0]], [var_3_plus[0,-1,1], var_3_plus[0,0,1]], 'ro-')
