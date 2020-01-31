@@ -13,8 +13,15 @@ for k, v in f.items():
 solve(data, save_plot_dir = '../results/hand')
 
 # ------------------------- Leaf dataset -------------------------
-data_path = '../data/leaf/leaf_74.npy'
+data_path = '../data/leaf/leaf.npy'
 data = np.load(data_path)
 solve(data, save_plot_dir = '../results/leaf', data_dir= '../data/leaf/data')
+
+# ------------------------- Brain MRI dataset -------------------------
+data_path = '../data/brain/brain.npy'
+data = np.load(data_path)
+solve(data, save_plot_dir = '../results/brain', data_dir= '../data/brain/data')
+
+
 
 
