@@ -3,6 +3,10 @@ from solver import solve
 import h5py
 import numpy as np 
 
+# ------------------------- Ellipse dataset -------------------------
+data_path = '../data/ellipse/ellipse2.npy'
+data = np.load(data_path)
+solve(data, save_plot_dir = '../results/ellipse', data_dir= '../data/ellipse/data')
 
 # ------------------------- Hand dataset -------------------------
 data_path = '../data/hand/data.mat'
@@ -21,6 +25,7 @@ solve(data, save_plot_dir = '../results/leaf', data_dir= '../data/leaf/data')
 data_path = '../data/brain/brain.npy'
 data = np.load(data_path)
 solve(data, save_plot_dir = '../results/brain', data_dir= '../data/brain/data')
+
 
 
 

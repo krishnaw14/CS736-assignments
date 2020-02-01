@@ -16,7 +16,7 @@ def visualize_checkpoints(pointset, img_path):
 
 
 
-pointset = np.load('../leaf.npy')
+# pointset = np.load('../leaf.npy')
 
 img = '../data/leaf/data/leaf_1.png'
 # visualize_checkpoints(img, pointset)
