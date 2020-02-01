@@ -5,8 +5,7 @@ __pycache__/
 
 # custom
 .DS_Store
-*data/
-data/
+
 
 
 
