@@ -1,5 +1,9 @@
 import numpy as np 
 
+def rrmse(A,B):
+	rrmse = np.sqrt(np.sum((A-B)**2)/np.sum(A**2))
+	return rrmse
+
 def likelihood_function(x,y):
 	function_value = np.sum(np.abs(x-y)**2)
 	grad_value = 2*(x-y)

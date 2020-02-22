@@ -5,20 +5,30 @@ import matplotlib.pyplot as plt
 from denoise import denoise
 
 # Solve For question 1: Brain MRI images
-# import pdb; pdb.set_trace()
+save_results_dir = '../results/q1'
+
 denoised_img = plt.imread('../data/mri_image_noiseless.png')
 low_noise_img = plt.imread('../data/mri_image_noise_level_low.png')
 med_noise_img = plt.imread('../data/mri_image_noise_level_medium.png')
 high_noise_img = plt.imread('../data/mri_image_noise_level_high.png')
 
-print('Denoising Low Noise Level Image:')
-denoise(low_noise_img, denoised_img, beta=0.0875, optimize_mode=False, prior='quadratic')
+print('\n---------------------------------------------------------------------------------')
+print('Denoising Low Noise Level Image...')
+denoise(low_noise_img, denoised_img, beta=0.0875, optimize_mode=False, prior='quadratic', 
+	save_results_dir=os.path.join(save_results_dir, 'low_noise_level'))
+print('---------------------------------------------------------------------------------\n')
 
-print('Denoising Medium Noise Level Image:')
-denoise(med_noise_img, denoised_img, beta=0.1773, optimize_mode=False, prior='quadratic')
+print('\n---------------------------------------------------------------------------------')
+print('Denoising Medium Noise Level Image...')
+denoise(med_noise_img, denoised_img, beta=0.1773, optimize_mode=False, prior='quadratic', 
+	save_results_dir=os.path.join(save_results_dir, 'med_noise_level'))
+print('---------------------------------------------------------------------------------\n')
 
-print('Denoising High Noise Level Image:')
-denoise(high_noise_img, denoised_img, beta=0.2407, optimize_mode=False, prior='quadratic')
+print('\n---------------------------------------------------------------------------------')
+print('Denoising High Noise Level Image...')
+denoise(high_noise_img, denoised_img, beta=0.2407, optimize_mode=False, prior='quadratic', 
+	save_results_dir=os.path.join(save_results_dir, 'high_noise_level'))
+print('---------------------------------------------------------------------------------\n')
 
 # Solve For question 2: Histology Images
 

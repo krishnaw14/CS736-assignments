@@ -3,118 +3,100 @@ import os
 import matplotlib.pyplot as plt
 from functions import *
 
-def rrmse(A,B):
-	rrmse = np.sqrt(np.sum((A-B)**2)/np.sum(A**2))
-	return rrmse
+def calculate_posterior(x,y, beta, gamma=None, prior_func=quadratic_function):
 
-# def posterior_function(x,y,prior_function, beta):
-# 	likelihood = likelihood_function(x,y)
+	def calculate_prior(x):
+		prior_1, grad_1 = prior_func(x - np.roll(x, 1, axis=0))
+		prior_2, grad_2 = prior_func(x - np.roll(x, -1, axis=0))
+		prior_3, grad_3 = prior_func(x - np.roll(x, 1, axis=1))
+		prior_4, grad_4 = prior_func(x - np.roll(x, -1, axis=1))
 
-# 	prior = prior_function(x, np.roll(x, 1, axis=0))
-# 	prior += prior_function(x, np.roll(x, -1, axis=0))
-# 	prior += prior_function(x, np.roll(x, 1, axis=1))
-# 	prior += prior_function(x, np.roll(x, -1, axis=1))
-
-# 	posterior = (1-beta)*likelihood + beta*prior
-# 	return posterior
-
-# def posterior_derivative_function(x,y,prior_function, beta):
-# 	likelihood_derivative = likelihood_derivative_function(x,y)
-	
-# 	prior_derivative = prior_function(x, np.roll(x, 1, axis=0))
-# 	prior_derivative += prior_function(x, np.roll(x, -1, axis=0))
-# 	prior_derivative += prior_function(x, np.roll(x, 1, axis=1))
-# 	prior_derivative += prior_function(x, np.roll(x, -1, axis=1))
-
-# 	posterior_derivative = (1-beta)*likelihood_derivative + beta*prior_derivative
-
-# 	return posterior_derivative
-
-def calculate_prior(x):
-	prior_1, grad_1 = quadratic_function(x - np.roll(x, 1, axis=0))
-	prior_2, grad_2 = quadratic_function(x - np.roll(x, -1, axis=0))
-	prior_3, grad_3 = quadratic_function(x - np.roll(x, 1, axis=1))
-	prior_4, grad_4 = quadratic_function(x - np.roll(x, -1, axis=1))
-
-	prior = prior_1 + prior_2 + prior_3 + prior_4
-	grad = grad_1 + grad_2 + grad_3 + grad_4
-	return prior, grad
-
-
-def denoise(noisy_img, denoised_img, beta=0.6, optimize_mode=False, prior='quadratic'):
-
-	if not optimize_mode:
-		print('Initial RRMSE between Noisy and Denoised Image:', rrmse(denoised_img, noisy_img))
-	m, n = denoised_img.shape
-
-	# Create Grid indices for parallel update
-	m_ind_1 = np.arange(0,m,2)
-	m_ind_2 = np.arange(1, m, 2)
-	n_ind_1 = np.arange(0, n, 2)
-	n_ind_2 = np.arange(1, n, 2)
-
-	# Using Notation used in class
-	x = 1.0*noisy_img.copy() # Initial Estimate
-	y = 1.0*noisy_img.copy() # Observed Data
-
-	alpha = 1e-2
+		prior = prior_1 + prior_2 + prior_3 + prior_4
+		grad = grad_1 + grad_2 + grad_3 + grad_4
+		return prior, grad
 
 	likelihood, likelihood_grad = likelihood_function(x,y)
 	prior, prior_grad = calculate_prior(x)
+	posterior = beta*prior + (1-beta)*likelihood
+	posterior_grad = beta*prior_grad + (1-beta)*likelihood_grad
 
-	initial_post = beta*prior + (1-beta)*likelihood
+	return posterior, posterior_grad
+
+
+def denoise(noisy_img, denoised_img, beta=0.6, gamma=0.5, optimize_mode=False, prior='quadratic', 
+	save_results_dir='../results/'):
+	
+	save_results_dir = os.path.join(save_results_dir, prior)
+	os.makedirs(save_results_dir, exist_ok=True)
+		
+	m, n = denoised_img.shape
+
+	# Using Notation used in class
+	x = noisy_img.copy() # Initial Estimate
+	y = noisy_img.copy() # Observed Data
+
+	alpha = 1e-2 # Initial Learning Rate
+
+	initial_log_posterior, _ = calculate_posterior(x,y, beta)
 	
 	counter = 0	
-	post_values = [initial_post]
-	while counter < 100 and alpha > 1e-8:
+	post_values = [initial_log_posterior]
+	while counter < 300 and alpha > 1e-8:
+
+		# Monitor Objective Function. Partitioning the grid into sets such that a set contains no neighbours.
 		
+		log_posterior, log_posterior_grad = calculate_posterior(x,y, beta)
+		x[0:m:2, 0:n:2] = x[0:m:2, 0:n:2]-alpha*log_posterior_grad[0:m:2, 0:n:2]
 
-		likelihood, likelihood_grad = likelihood_function(x,y)
-		prior, prior_grad = calculate_prior(x)
-		post = beta*prior + (1-beta)*likelihood
-		post_grad = beta*prior_grad + (1-beta)*likelihood_grad
-		x[0:m:2, 0:n:2] = x[0:m:2, 0:n:2]-alpha*post_grad[0:m:2, 0:n:2]
+		log_posterior, log_posterior_grad = calculate_posterior(x,y, beta)
+		x[0:m:2, 1:n:2] = x[0:m:2, 1:n:2]-alpha*log_posterior_grad[0:m:2, 1:n:2]
 
-		likelihood, likelihood_grad = likelihood_function(x,y)
-		prior, prior_grad = calculate_prior(x)
-		post = beta*prior + (1-beta)*likelihood
-		post_grad = beta*prior_grad + (1-beta)*likelihood_grad
-		x[0:m:2, 1:n:2] = x[0:m:2, 1:n:2]-alpha*post_grad[0:m:2, 1:n:2]
+		log_posterior, log_posterior_grad = calculate_posterior(x,y, beta)
+		x[1:m:2, 0:n:2] = x[1:m:2, 0:n:2]-alpha*log_posterior_grad[1:m:2, 0:n:2]
 
-		likelihood, likelihood_grad = likelihood_function(x,y)
-		prior, prior_grad = calculate_prior(x)
-		post = beta*prior + (1-beta)*likelihood
-		post_grad = beta*prior_grad + (1-beta)*likelihood_grad
-		x[1:m:2, 0:n:2] = x[1:m:2, 0:n:2]-alpha*post_grad[1:m:2, 0:n:2]
+		log_posterior, log_posterior_grad = calculate_posterior(x,y, beta)
+		x[1:m:2, 1:n:2] = x[1:m:2, 1:n:2]-alpha*log_posterior_grad[1:m:2, 1:n:2]
 
-		likelihood, likelihood_grad = likelihood_function(x,y)
-		prior, prior_grad = calculate_prior(x)
-		post = beta*prior + (1-beta)*likelihood
-		post_grad = beta*prior_grad + (1-beta)*likelihood_grad
-		x[1:m:2, 1:n:2] = x[1:m:2, 1:n:2]-alpha*post_grad[1:m:2, 1:n:2]
+		log_posterior, _ = calculate_posterior(x,y, beta)
 
-		likelihood, likelihood_grad = likelihood_function(x,y)
-		prior, prior_grad = calculate_prior(x)
-		post = beta*prior + (1-beta)*likelihood
-
-		if post/initial_post < 1:
+		# Dynamic Learning Rate
+		if log_posterior/initial_log_posterior < 1:
 			alpha *= 1.1
 		else:
 			alpha *= 0.5
 
-		initial_post = post.copy()
+		initial_log_posterior = log_posterior.copy()
 		counter += 1
-		post_values.append(post)
+		post_values.append(log_posterior)
 
 	if optimize_mode:
 		return rrmse(denoised_img, x)
 	else:
-		print('After Optimization: RRMSE =', rrmse(denoised_img, x))
-		plt.plot(post_values); plt.show()
+		print('Initial RRMSE between Noisy and Denoised Image:', rrmse(denoised_img, noisy_img))
+		print('Denoising done in {} iterations. RRMSE after denoising = {}'.format(counter, rrmse(denoised_img, x)))
+
+		plt.clf()
+		plt.plot(np.arange(counter+1), post_values)
+		plt.xlabel('Number of iterations')
+		plt.ylabel('Objective Function (log)')
+		plt.title('{} prior'.format(prior))
+		plt.savefig(os.path.join(save_results_dir, 'objective_function.png'))
+		plt.clf()
+
+		cmap = 'gray' if 'q1' in save_results_dir else None
+
+		plt.imshow(noisy_img, cmap=cmap)
+		plt.savefig(os.path.join(save_results_dir, 'noisy_img.png'))
+
+		plt.imshow(denoised_img, cmap=cmap)
+		plt.savefig(os.path.join(save_results_dir, 'ground_turth_denoised_img.png'))
+
+		plt.imshow(x, cmap=cmap)
+		plt.savefig(os.path.join(save_results_dir, '{}_prior_denoised_img.png'.format(prior)))
 
 
-	
-	# import pdb; pdb.set_trace()
+
+
 	
 
 
