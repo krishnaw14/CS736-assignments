@@ -14,6 +14,7 @@ denoised_img = plt.imread('../data/mri_image_noiseless.png')
 low = plt.imread('../data/mri_image_noise_level_low.png')
 med = plt.imread('../data/mri_image_noise_level_medium.png')
 high = plt.imread('../data/mri_image_noise_level_high.png')
+
 if image_type == "low":
 	image = low
 if image_type == "med":
@@ -27,7 +28,7 @@ gamma_opt = 0
 for i in range(10):
 	for gamma in np.linspace(gamma_lower_bound,gamma_upper_bound,10):
 		for beta in np.linspace(beta_lower_bound,beta_upper_bound,10):
-			# optimize_mode=True if beta ==0.22 else False
+
 			rrmse_final = denoise(image, denoised_img, beta=beta,gamma = gamma, optimize_mode=True, prior=function_type)
 			if rrmse_final < rrmse_final_min:
 				rrmse_final_min = rrmse_final
@@ -43,4 +44,4 @@ print (beta_opt)
 print (gamma_opt)
 print (image_type)
 print (function_type)
-#import pdb; pdb.set_trace()
+import pdb; pdb.set_trace()

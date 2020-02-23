@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 from functions import *
 
-def calculate_posterior(x,y, beta, gamma, prior):
+def calculate_posterior(x,y, alpha, gamma, prior):
 	if prior == "quad":
 		prior_func = quadratic_function
 	if prior == "adapt":
@@ -22,13 +22,13 @@ def calculate_posterior(x,y, beta, gamma, prior):
 
 	likelihood, likelihood_grad = likelihood_function(x,y)
 	prior, prior_grad = calculate_prior(x)
-	posterior = beta*prior + (1-beta)*likelihood
-	posterior_grad = beta*prior_grad + (1-beta)*likelihood_grad
+	posterior = alpha*prior + (1-alpha)*likelihood
+	posterior_grad = alpha*prior_grad + (1-alpha)*likelihood_grad
 
 	return posterior, posterior_grad
 
 
-def denoise(noisy_img, denoised_img, beta=0.6, gamma=0.5, optimize_mode=False, prior='quadratic', 
+def denoise(noisy_img, denoised_img, alpha=0.6, gamma=0.5, optimize_mode=False, prior='quadratic', 
 	save_results_dir='../results/'):
 	
 	save_results_dir = os.path.join(save_results_dir, prior)
@@ -40,35 +40,35 @@ def denoise(noisy_img, denoised_img, beta=0.6, gamma=0.5, optimize_mode=False, p
 	x = noisy_img.copy() # Initial Estimate
 	y = noisy_img.copy() # Observed Data
 
-	alpha = 1e-2 # Initial Learning Rate
+	step_size = 1e-2 # Initial Learning Rate
 
-	initial_log_posterior, _ = calculate_posterior(x,y, beta, gamma, prior)
+	initial_log_posterior, _ = calculate_posterior(x,y, alpha, gamma, prior)
 	
 	counter = 0	
 	post_values = [initial_log_posterior]
-	while counter < 300 and alpha > 1e-8:
+	while counter < 300 and step_size > 1e-8:
 
 		# Monitor Objective Function. Partitioning the grid into sets such that a set contains no neighbours.
 		
-		log_posterior, log_posterior_grad = calculate_posterior(x,y, beta, gamma, prior)
-		x[0:m:2, 0:n:2] = x[0:m:2, 0:n:2]-alpha*log_posterior_grad[0:m:2, 0:n:2]
+		log_posterior, log_posterior_grad = calculate_posterior(x,y, alpha, gamma, prior)
+		x[0:m:2, 0:n:2] = x[0:m:2, 0:n:2]-step_size*log_posterior_grad[0:m:2, 0:n:2]
 
-		log_posterior, log_posterior_grad = calculate_posterior(x,y, beta, gamma, prior)
-		x[0:m:2, 1:n:2] = x[0:m:2, 1:n:2]-alpha*log_posterior_grad[0:m:2, 1:n:2]
+		log_posterior, log_posterior_grad = calculate_posterior(x,y, alpha, gamma, prior)
+		x[0:m:2, 1:n:2] = x[0:m:2, 1:n:2]-step_size*log_posterior_grad[0:m:2, 1:n:2]
 
-		log_posterior, log_posterior_grad = calculate_posterior(x,y, beta, gamma, prior)
-		x[1:m:2, 0:n:2] = x[1:m:2, 0:n:2]-alpha*log_posterior_grad[1:m:2, 0:n:2]
+		log_posterior, log_posterior_grad = calculate_posterior(x,y, alpha, gamma, prior)
+		x[1:m:2, 0:n:2] = x[1:m:2, 0:n:2]-step_size*log_posterior_grad[1:m:2, 0:n:2]
 
-		log_posterior, log_posterior_grad = calculate_posterior(x,y, beta, gamma, prior)
-		x[1:m:2, 1:n:2] = x[1:m:2, 1:n:2]-alpha*log_posterior_grad[1:m:2, 1:n:2]
+		log_posterior, log_posterior_grad = calculate_posterior(x,y, alpha, gamma, prior)
+		x[1:m:2, 1:n:2] = x[1:m:2, 1:n:2]-step_size*log_posterior_grad[1:m:2, 1:n:2]
 
-		log_posterior, _ = calculate_posterior(x,y, beta, gamma, prior)
+		log_posterior, _ = calculate_posterior(x,y, alpha, gamma, prior)
 
 		# Dynamic Learning Rate
 		if log_posterior/initial_log_posterior < 1:
-			alpha *= 1.1
+			step_size *= 1.1
 		else:
-			alpha *= 0.5
+			step_size *= 0.5
 
 		initial_log_posterior = log_posterior.copy()
 		counter += 1
