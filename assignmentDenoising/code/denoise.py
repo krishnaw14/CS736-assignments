@@ -76,9 +76,6 @@ def denoise(noisy_img, denoised_img, alpha=0.6, gamma=0.5, optimize_mode=False, 
 		print('Initial RRMSE between Noisy and Denoised Image:', round(rrmse(denoised_img, noisy_img),5))
 		print('Denoising done in {} updates. RRMSE after denoising = {:.5f}'.format(counter, rrmse(denoised_img, x)) )
 
-		if color_mode: 
-			return x
-
 		plt.clf()
 		plt.plot(np.arange(counter+1), post_values)
 		plt.xlabel('Number of iterations')
@@ -97,6 +94,9 @@ def denoise(noisy_img, denoised_img, alpha=0.6, gamma=0.5, optimize_mode=False, 
 
 		plt.imshow(x, cmap=cmap)
 		plt.savefig(os.path.join(save_results_dir, '{}_prior_denoised_img.png'.format(prior)))
+
+		if color_mode: 
+			return x, post_values
 
 
 
