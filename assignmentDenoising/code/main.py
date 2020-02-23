@@ -63,13 +63,13 @@ denoised_img = cv2.cvtColor(plt.imread('../data/histology_noiseless.png'), cv2.C
 noisy_img = cv2.cvtColor(plt.imread('../data/histology_noisy.png'), cv2.COLOR_BGR2HSV)
 
 
-channel_0 = denoise(noisy_img[:,:,0], denoised_img[:,:,0], alpha=1, gamma=1, optimize_mode=False, prior='discontinuity_adaptive_huber', 
+channel_0 = denoise(noisy_img[:,:,0], denoised_img[:,:,0], alpha=1, gamma=1, optimize_mode=False, prior='huber', 
 	color_mode=True)
 
-channel_1 = denoise(noisy_img[:,:,1], denoised_img[:,:,1], alpha=0.8974, gamma=0.02662, optimize_mode=False, prior='discontinuity_adaptive_huber', 
+channel_1 = denoise(noisy_img[:,:,1], denoised_img[:,:,1], alpha=0.8974, gamma=0.02662, optimize_mode=False, prior='huber', 
 	color_mode=True)
 
-channel_2 = denoise(noisy_img[:,:,2], denoised_img[:,:,2], alpha=0.8718, gamma=0.02662, optimize_mode=False, prior='discontinuity_adaptive_huber', 
+channel_2 = denoise(noisy_img[:,:,2], denoised_img[:,:,2], alpha=0.8718, gamma=0.02662, optimize_mode=False, prior='huber', 
 	color_mode=True)
 
 sample = noisy_img.copy()

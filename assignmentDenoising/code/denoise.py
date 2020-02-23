@@ -28,8 +28,8 @@ def calculate_posterior(x,y, alpha, gamma, prior):
 	return posterior, posterior_grad
 
 
-def denoise(noisy_img, denoised_img, alpha=0.6, gamma=0.5, optimize_mode=False, prior='quadratic', 
-	save_results_dir='../results/'):
+def denoise(noisy_img, denoised_img, alpha=0.6, gamma=0.5, optimize_mode=False, prior='quad', 
+	save_results_dir='../results/', color_mode = False):
 	
 	save_results_dir = os.path.join(save_results_dir, prior)
 	os.makedirs(save_results_dir, exist_ok=True)
@@ -79,6 +79,9 @@ def denoise(noisy_img, denoised_img, alpha=0.6, gamma=0.5, optimize_mode=False, 
 	else:
 		print('Initial RRMSE between Noisy and Denoised Image:', rrmse(denoised_img, noisy_img))
 		print('Denoising done in {} iterations. RRMSE after denoising = {}'.format(counter, rrmse(denoised_img, x)))
+		
+		if color_mode: 
+			return x
 
 		plt.clf()
 		plt.plot(np.arange(counter+1), post_values)
