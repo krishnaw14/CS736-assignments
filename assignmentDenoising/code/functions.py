@@ -18,7 +18,7 @@ def quadratic_function(u, gamma):
 
 def discontinuity_adaptive_function(u, gamma):
 	function_value = np.sum(gamma*np.abs(u) - (gamma**2)*np.log(1+np.abs(u)/gamma))
-	grad_value = gamma*np.sign(u) - gamma*np.sign(u)/(1+np.abs(u)/gamma)
+	grad_value = gamma*u/(gamma+np.abs(u))
 
 	return function_value, grad_value
 
