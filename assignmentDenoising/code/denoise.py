@@ -62,12 +62,12 @@ def denoise(noisy_img, denoised_img, alpha=0.6, gamma=0.5, optimize_mode=False, 
 		# Dynamic Learning Rate
 		if log_posterior/initial_log_posterior < 1:
 			step_size *= 1.1
-			initial_log_posterior = log_posterior.copy()
-			counter += 1
-			post_values.append(log_posterior)
 		else:
-			x = x + step_size*log_posterior_grad
 			step_size *= 0.5
+
+		initial_log_posterior = log_posterior.copy()
+		counter += 1
+		post_values.append(log_posterior)
 
 
 	if optimize_mode:
@@ -97,6 +97,5 @@ def denoise(noisy_img, denoised_img, alpha=0.6, gamma=0.5, optimize_mode=False, 
 
 		if color_mode: 
 			return x, post_values
-
 
 

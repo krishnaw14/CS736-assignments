@@ -7,7 +7,6 @@ from denoise import denoise
 from functions import *
 
 # Solve For question 1: Brain MRI images
-
 save_results_dir = '../results/q1'
 
 denoised_img = plt.imread('../data/mri_image_noiseless.png')
@@ -62,10 +61,12 @@ print('RRMSE at 1.2 times optimum gamma=', round(denoise(high_noise_img, denoise
 	save_results_dir=os.path.join(save_results_dir, 'discontinuity_adaptive', 'low_noise_level')), 5))
 print('RRMSE at 0.8 times optimum gamma=', round(denoise(high_noise_img, denoised_img, alpha=0.8748, gamma=0.0023*0.8, optimize_mode=True, prior='discontinuity_adaptive', 
 	save_results_dir=os.path.join(save_results_dir, 'discontinuity_adaptive', 'low_noise_level')), 5))
+
 print('---------------------------------------------------------------------------------\n')
 
 print('\n---------------------------------------------------------------------------------')
 print('Denoising Medium Noise Level Image...')
+
 denoise(med_noise_img, denoised_img, alpha=0.8862, gamma=0.00438, optimize_mode=False, prior='discontinuity_adaptive', 
 	save_results_dir=os.path.join(save_results_dir, 'discontinuity_adaptive', 'med_noise_level'))
 print('RRMSE at 1.2 times optimum alpha=', round(denoise(high_noise_img, denoised_img, alpha=0.8862*1.2, gamma=0.00438, optimize_mode=True, prior='discontinuity_adaptive', 
@@ -111,6 +112,7 @@ print('-------------------------------------------------------------------------
 
 print('\n---------------------------------------------------------------------------------')
 print('Denoising Medium Noise Level Image...')
+
 denoise(med_noise_img, denoised_img, alpha=0.8663, gamma=0.0048, optimize_mode=False, prior='discontinuity_adaptive_huber', 
 	save_results_dir=os.path.join(save_results_dir, 'discontinuity_adaptive_huber', 'med_noise_level'))
 print('RRMSE at 1.2 times optimum alpha=', round(denoise(high_noise_img, denoised_img, alpha=0.8663*1.2, gamma=0.0048, optimize_mode=True, prior='discontinuity_adaptive_huber', 
@@ -333,6 +335,3 @@ plt.title('Discontinuity_Adaptive prior')
 plt.savefig(os.path.join(save_results_dir, 'adaptive_all_channel_objective_function.png'))
 
 print('\nRMSE after discontinuity adaptive prior denoising:', rrmse(noiseless_img, denoised_img))
-
-
-
