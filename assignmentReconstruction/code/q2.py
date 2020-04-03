@@ -6,18 +6,25 @@
 import numpy as np 
 import cv2 
 import matplotlib.pyplot as plt
-from skimage.transform import radon 
+from skimage.transform import radon
+from helper_functions import get_rrmse
+from filtered_backprojection import *
+
 
 ChestPhantom = plt.imread("../data/ChestPhantom.png")
+print (ChestPhantom.shape)
 theta = np.linspace(start = 0, stop = 180,num = 180,endpoint = False, dtype = int)
-A = radon(ChestPhantom, theta, circle = True)
-diff = np.max(A) - np.min(A)
-noise = np.random.normal(0,diff*0.02,A.shape)
+signogram = radon(ChestPhantom, theta, circle = True)
 
-new_A = A + noise
+A = np.linalg.solve(ChestPhantom.reshape(-1,1),signogram.reshape(-1,1))
 
-'''
-cv2.imshow("im", ChestPhantom)
-cv2.imshow("final",new_A)
-cv2.waitKey(0)
-'''
+diff = np.max(signogram) - np.min(signogram)
+noise = np.random.normal(0,diff*0.02,signogram.shape)
+signogram_withnoise = signogram + noise
+
+filtered_backprojection(signogram_withnoise)
+
+#part d Tikhonov 
+
+
+
