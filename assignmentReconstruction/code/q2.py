@@ -18,10 +18,18 @@ ChestPhantom = plt.imread("../data/ChestPhantom.png")
 print (ChestPhantom.shape)
 theta = np.linspace(start = 0, stop = 180,num = 180,endpoint = False, dtype = int)
 sinogram = radon(ChestPhantom, theta, circle = True)
+
 # Solving for A (High computational complexity)
-
-
-
+size = 128*128
+for i in range(size):
+	a = np.zeros(size)
+	a = np.expand_dims(a, axis = 1)
+	a[i] = 1
+	a = radon(a,theta)
+# a = np.eye(size)
+# A = radon(a, theta)
+# A = np.transpose(A)
+# Finding via knowledge of both the sinogram and the image
 #A = np.linalg.lstsq(ChestPhantom.reshape(-1,1),sinogram.reshape(-1,1))
 
 diff = np.max(sinogram) - np.min(sinogram)
@@ -35,7 +43,6 @@ from sklearn.linear_model import Ridge
 
 clf = Ridge(alpha = 1.0)
 clf.fit(img_recon,ChestPhantom)
-Ridge()
 
 
 # Part e 
